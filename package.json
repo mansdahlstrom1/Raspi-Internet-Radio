@@ -1,0 +1,14 @@
+{
+  "name": "rapberrypi_internet_radio",
+  "version": "1.0.0",
+  "description": "internet radio with remote app controller",
+  "main": "radio.js",
+  "scripts": {
+    "test": "node radio.js"
+  },
+  "author": "Måns Dahlström",
+  "license": "ISC",
+  "dependencies": {
+    "fifo-js": "^2.1.0"
+  }
+}
