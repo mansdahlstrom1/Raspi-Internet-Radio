@@ -4,7 +4,8 @@
   "description": "internet radio with remote app controller",
   "main": "radio.js",
   "scripts": {
-    "test": "node radio.js"
+    "dev": "nodemon radio.js",
+    "prod": "node radio.js"
   },
   "author": "Måns Dahlström",
   "license": "ISC",
