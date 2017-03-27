@@ -10,6 +10,7 @@
   "author": "Måns Dahlström",
   "license": "ISC",
   "dependencies": {
-    "fifo-js": "^2.1.0"
+    "fifo-js": "^2.1.0",
+    "mplayer": "^2.1.0"
   }
 }

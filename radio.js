@@ -1,61 +1,119 @@
-const FIFO      = require('fifo-js')
 const express   = require('express')
 const app       = express()
+const cors      = require('cors')
 const playlist  = require('./playlist.js')
+const MPlayer   = require('mplayer')
+const player    = new MPlayer(false,true);
 
+let radio = {
+    activeRadio: 0,
+    muted: false,
+    volume: 50,
+    playing: false,
+    title: "",
+    playlist: playlist
+}
 
-let activeRadio = 0; 
-let fifo = new FIFO("/tmp/mplayercontrol")
-fifo.read(console.log.bind(console))
+app.use(cors());
+
+updateRadio = function(req, res){
+    player.on('start', () => {
+        radio.muted     = player.status.muted
+        radio.volume    = player.status.volume
+        radio.playing   = player.status.playing
+        radio.title     = player.status.title == null ? radio.playlist[radio.activeRadio].name : player.status.title
+        console.log(radio.title)
+        if (!res.headersSent)
+            res.json(radio)
+    })
+
+}
+
+playerInit = function(){
+    player.volume(radio.volume)
+    player.on('ready', () => {
+        radio.muted     = player.status.muted
+        radio.volume    = player.status.volume
+        radio.playing   = player.status.playing
+        radio.title     = player.status.title == null ? radio.playlist[radio.activeRadio].name : player.status.title
+    })
+    playSong()
+}
+
+playSong = function() {
+    player.openFile(radio.playlist[radio.activeRadio].url, {
+        cache: 128,
+        cacheMin: 1
+    })
+    player.play()
+}
 
 changeIndex = function(isNext){
     if (isNext) {
-        if (activeRadio == playlist.length - 1) 
-            activeRadio = 0
+        if (radio.activeRadio == radio.playlist.length - 1) 
+            radio.activeRadio = 0
         else 
-            activeRadio++
+            radio.activeRadio++
     } else {
-        if (activeRadio == 0) 
-            activeRadio = playlist.length - 1
+        if (radio.activeRadio == 0) 
+            radio.activeRadio = radio.playlist.length - 1
         else 
-            activeRadio--
+            radio.activeRadio--
     }  
 }
 
 app.get('/', function (req, res) {
-  res.send('Welcome to the Radio Trastvägen')
-  console.log(playlist)
+  res.json(radio)
 })
 
-app.get('/pause', function(req, res ) {
-  fifo.write('pause')
-  res.send("Nice pause man!")
+app.get('/pause', (req, res ) => {
+    if (radio.playing) 
+        player.pause()
+    else
+        player.play()    
+    res.json(radio)
 })
 
-app.get('/next', function(req, res) {
+app.get('/next', (req, res) => {
     changeIndex(true);
-    let nextChannel = playlist[activeRadio]
-    fifo.write("loadfile "+ nextChannel.url)
-    res.send("Changes radio channel: \n now playing: " + nextChannel.name)
+    playSong()
+    updateRadio(req, res) 
 })
 
-app.get('/prev', function(req, res) {
+app.get('/prev', (req, res) => {
     changeIndex(false);
-    let prevChannel = playlist[activeRadio]
-    fifo.write("loadfile "+ prevChannel.url)
-    res.send("Changes radio channel: \n now playing: " + prevChannel.name)
+    playSong()
+    updateRadio(req, res)
 })
 
-app.get('/')
-
-
-
- 
-fifo.setReader(text => {
-    console.log(text);
+app.get('/raiseTheVolume', (req, res) => {
+    if (radio.volume < 100) {
+        radio.volume += 5
+        player.volume(radio.volume)
+    }   
+    res.json(radio);
 })
- 
 
-app.listen(3000, function () {
+app.get('/lowerTheVolume', (req, res) => {
+    if (radio.volume > 0) {
+        radio.volume -= 5
+        player.volume(radio.volume)
+    } 
+    res.json(radio) 
+})
+
+app.get('/mute', (req, res) => {
+    player.mute()
+    radio.muted = !radio.muted
+    res.json(radio)
+})
+
+app.get('/test', (req, res) => {
+    console.log("Hey! /test was called");
+    updateRadio(req, res)
+})
+
+app.listen(3000,  () => {
   console.log('Example app listening on port 3000!')
+  playerInit()
 })
