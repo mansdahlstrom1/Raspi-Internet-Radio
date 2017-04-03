@@ -10,6 +10,8 @@
   "author": "Måns Dahlström",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.3",
+    "express": "^4.15.2",
     "fifo-js": "^2.1.0",
     "mplayer": "^2.1.0"
   }

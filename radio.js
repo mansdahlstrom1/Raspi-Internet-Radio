@@ -70,7 +70,8 @@ app.get('/pause', (req, res ) => {
     if (radio.playing) 
         player.pause()
     else
-        player.play()    
+        player.play()  
+    radio.playing = !radio.playing;  
     res.json(radio)
 })
 
@@ -106,6 +107,8 @@ app.get('/mute', (req, res) => {
     player.mute()
     radio.muted = !radio.muted
     res.json(radio)
+
+
 })
 
 app.get('/test', (req, res) => {
