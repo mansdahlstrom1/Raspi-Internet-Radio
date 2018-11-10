@@ -1,122 +1,90 @@
-const express   = require('express')
-const app       = express()
-const cors      = require('cors')
-const playlist  = require('./playlist.js')
-const MPlayer   = require('mplayer')
-const player    = new MPlayer(false,true);
+const MPlayer = require('mplayer');
+const playlist = require('./playlist.js');
 
-let radio = {
-    activeRadio: 0,
-    muted: false,
-    volume: 50,
-    playing: false,
-    title: "",
-    playlist: playlist
-}
+const config = {
+  cacheMin: 1,
+  cache: 128,
+};
 
-app.use(cors());
+class Radio {
+  constructor() {
+    this.activeRadio = 0;
+    this.muted = false;
+    this.volume = 50;
+    this.playing = false;
+    this.title = '';
+    this.playlist = playlist;
+    this.player = new MPlayer(false, true);
+  }
 
-updateRadio = function(req, res){
-    player.on('start', () => {
-        radio.muted     = player.status.muted
-        radio.volume    = player.status.volume
-        radio.playing   = player.status.playing
-        radio.title     = player.status.title == null ? radio.playlist[radio.activeRadio].name : player.status.title
-        console.log(radio.title)
-        if (!res.headersSent)
-            res.json(radio)
-    })
+  get() {
+    return {
+      active: this.activeRadio,
+      muted: this.muted,
+      volume: this.volume,
+      playing: this.playing,
+      title: this.title,
+    };
+  }
 
-}
+  updateRadio() {
+    this.muted = this.player.status.muted;
+    this.volume = this.player.status.volume;
+    this.playing = this.player.status.playing;
+    this.title = !this.player.status.title
+      ? this.playlist[this.activeRadio].name
+      : this.player.status.title;
+  }
 
-playerInit = function(){
-    player.volume(radio.volume)
-    player.on('ready', () => {
-        radio.muted     = player.status.muted
-        radio.volume    = player.status.volume
-        radio.playing   = player.status.playing
-        radio.title     = player.status.title == null ? radio.playlist[radio.activeRadio].name : player.status.title
-    })
-    playSong()
-}
+  initalize() {
+    this.player.on('start', () => this.updateRadio());
+    this.player.on('status', () => this.updateRadio());
+  }
 
-playSong = function() {
-    player.openFile(radio.playlist[radio.activeRadio].url, {
-        cache: 128,
-        cacheMin: 1
-    })
-    player.play()
-}
+  pause() {
+    this.player.pause();
+  }
 
-changeIndex = function(isNext){
+  resume() {
+    this.player.resume();
+  }
+
+  mute() {
+    this.player.mute();
+  }
+
+  next() {
+    this.changeIndex(true);
+    this.player.openFile(this.playlist[this.activeRadio].url, config);
+    this.player.play();
+  }
+
+  prev() {
+    this.changeIndex();
+    this.player.openFile(this.playlist[this.activeRadio].url, config);
+    this.player.play();
+  }
+
+  setVolume(volume) {
+    this.player.volume = volume;
+  }
+
+  changeIndex(isNext = false) {
     if (isNext) {
-        if (radio.activeRadio == radio.playlist.length - 1) 
-            radio.activeRadio = 0
-        else 
-            radio.activeRadio++
+      if (this.activeRadio === this.playlist.length - 1) {
+        this.activeRadio = 0;
+      } else {
+        this.activeRadio += 1;
+      }
+      return;
+    }
+
+    if (this.activeRadio === 0) {
+      this.activeRadio = this.playlist.length - 1;
     } else {
-        if (radio.activeRadio == 0) 
-            radio.activeRadio = radio.playlist.length - 1
-        else 
-            radio.activeRadio--
-    }  
+      this.activeRadio -= 1;
+    }
+  }
 }
 
-app.get('/', function (req, res) {
-  res.json(radio)
-})
-
-app.get('/pause', (req, res ) => {
-    if (radio.playing) 
-        player.pause()
-    else
-        player.play()  
-    radio.playing = !radio.playing;  
-    res.json(radio)
-})
-
-app.get('/next', (req, res) => {
-    changeIndex(true);
-    playSong()
-    updateRadio(req, res) 
-})
-
-app.get('/prev', (req, res) => {
-    changeIndex(false);
-    playSong()
-    updateRadio(req, res)
-})
-
-app.get('/raiseTheVolume', (req, res) => {
-    if (radio.volume < 100) {
-        radio.volume += 5
-        player.volume(radio.volume)
-    }   
-    res.json(radio);
-})
-
-app.get('/lowerTheVolume', (req, res) => {
-    if (radio.volume > 0) {
-        radio.volume -= 5
-        player.volume(radio.volume)
-    } 
-    res.json(radio) 
-})
-
-app.get('/mute', (req, res) => {
-    player.mute()
-    radio.muted = !radio.muted
-    res.json(radio)
-
-
-})
-
-app.get('/test', (req, res) => {
-    console.log("Hey! /test was called");
-    updateRadio(req, res)
-})
-
-app.listen(3000,  () => {
-  console.log('Example app listening on port 3000!')
-  playerInit()
-})
+module.exports = Radio;
