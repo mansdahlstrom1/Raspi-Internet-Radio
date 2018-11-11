@@ -17,21 +17,24 @@ app.get('/', (req, res) => {
 
 app.get('/pause', async (req, res) => {
   try {
-    let cb = radio.pause;
+    let state;
     if (!radio.playing) {
-      cb = radio.resume;
+      state = await radio.resume();
+    } else {
+      state = await radio.pause();
     }
 
-    const state = await radio.promise(cb);
     res.json(state);
   } catch (err) {
-    res.json(400, err.message);
+    res.status(400).json({
+      message: err.toString(),
+    });
   }
 });
 
 app.get('/next', async (req, res) => {
   try {
-    const state = await radio.promise(() => radio.next());
+    const state = await radio.changeSong('next');
     res.json(state);
   } catch (err) {
     res.status(400).json({
@@ -42,7 +45,7 @@ app.get('/next', async (req, res) => {
 
 app.get('/prev', async (req, res) => {
   try {
-    const state = await radio.promise(() => radio.prev());
+    const state = await radio.changeSong('prev');
     res.json(state);
   } catch (err) {
     res.status(400).json({
@@ -53,7 +56,7 @@ app.get('/prev', async (req, res) => {
 
 app.get('/mute', async (req, res) => {
   try {
-    const state = await radio.promise(() => radio.mute());
+    const state = await radio.mute();
     res.json(state);
   } catch (err) {
     res.status(400).json({
@@ -81,7 +84,7 @@ app.post('/setVolume', async (req, res) => {
   }
 
   try {
-    const state = await radio.promise(() => radio.setVolume(volume));
+    const state = await radio.setVolume(volume);
     res.json(state);
   } catch (err) {
     res.status(400).json({

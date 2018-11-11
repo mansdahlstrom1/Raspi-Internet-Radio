@@ -17,11 +17,7 @@ class Radio {
     this.player = new MPlayer(false, true);
 
     this.pendingUpdate = false;
-  }
-
-  initalize() {
     this.player.on('ready', () => this.next());
-    this.player.on('start', () => this.updateRadio());
   }
 
   updateRadio() {
@@ -47,52 +43,69 @@ class Radio {
     };
   }
 
-  promise(cb) {
+  pause() {
     return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('pause', () => {
+        this.updateRadio();
+        resolve(this.get());
+      });
+      this.player.pause();
+    });
+  }
+
+  resume() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('resume', () => {
+        this.updateRadio();
+        resolve(this.get());
+      });
+      this.player.resume();
+    });
+  }
+
+  mute() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('status', ({ muted }) => {
+        if (this.muted !== muted) {
+          this.updateRadio();
+          resolve(this.get());
+        }
+      });
+      this.player.mute();
+    });
+  }
+
+  changeSong(direction) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
       this.player.on('start', () => {
         this.updateRadio();
         resolve(this.get());
       });
-      this.player.on('status', (status) => {
-        console.log('asd');
-        console.log('status changed: ', status);
-      });
-      setTimeout(() => reject(new Error('Timeout')), 3000);
-      cb();
+      this.changeIndex(direction);
+      this.player.openFile(this.playlist[this.activeRadio].url, config);
+      this.player.play();
     });
   }
 
-  pause() {
-    this.pendingUpdate = true;
-    this.player.pause();
-  }
-
-  resume() {
-    this.player.resume();
-  }
-
-  mute() {
-    this.player.mute();
-  }
-
-  next() {
-    this.changeIndex(true);
-    this.player.openFile(this.playlist[this.activeRadio].url, config);
-    this.player.play();
-  }
-
-  prev() {
-    this.changeIndex();
-    this.player.openFile(this.playlist[this.activeRadio].url, config);
-    this.player.play();
-  }
-
   setVolume(volume) {
-    this.player.volume = volume;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('status', ({ volume: newVolume }) => {
+        if (this.volume !== newVolume) {
+          this.updateRadio();
+          resolve(this.get());
+        }
+      });
+      this.player.volume = volume;
+    });
   }
 
-  changeIndex(isNext = false) {
-    if (isNext) {
+  changeIndex(direction) {
+    if (direction === 'next') {
       if (this.activeRadio === this.playlist.length - 1) {
         this.activeRadio = 0;
       } else {
