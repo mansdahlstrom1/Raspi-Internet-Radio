@@ -40,28 +40,54 @@ app.get('/next', async (req, res) => {
   }
 });
 
-app.get('/prev', (req, res) => {
-  radio.prev();
-  res.json(radio.get());
+app.get('/prev', async (req, res) => {
+  try {
+    const state = await radio.promise(() => radio.prev());
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
+  }
 });
 
-app.get('/mute', (req, res) => {
-  radio.mute();
-  res.json(radio.getAsync());
+app.get('/mute', async (req, res) => {
+  try {
+    const state = await radio.promise(() => radio.mute());
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
+  }
 });
 
 
-app.post('/setVolume', (req, res) => {
-  if (req.body.volume > 100 && req.body.volume < 0) {
-    return res.status(400).json({
+app.post('/setVolume', async (req, res) => {
+  const {
+    volume,
+  } = req.body;
+  if (volume > 100 || volume < 0) {
+    res.status(400).json({
       message: 'Invalid Volume',
       statusCode: 400,
     });
+    return;
   }
 
-  radio.setVolume(req.body.volume);
+  if (volume === radio.volume) {
+    res.json(radio.get());
+    return;
+  }
 
-  return res.json(radio.get());
+  try {
+    const state = await radio.promise(() => radio.setVolume(volume));
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
+  }
 });
 
 app.listen(3000, () => {
