@@ -46,6 +46,10 @@ class Radio {
   onChange(event, resolve) {
     if (event !== 'status') {
       return () => {
+<<<<<<< HEAD
+=======
+        console.log('onChange');
+>>>>>>> dev
         this.updateRadio();
         this.player.removeListener(event, this.onChange(event));
         resolve(this.get());
@@ -53,7 +57,11 @@ class Radio {
     }
 
     return (status) => {
+<<<<<<< HEAD
       console.log('status: ', status);
+=======
+      console.log('statusOnChange: ', status);
+>>>>>>> dev
       this.player.removeListener(event, this.onChange(event));
       this.updateRadio();
       resolve(this.get());
@@ -61,15 +69,27 @@ class Radio {
   }
 
 
+<<<<<<< HEAD
   myPromise(cb, event) {
     return new Promise((resolve, reject) => {
       setTimeout(() => reject(new Error('Timeout')), 3000);
       this.player.on(event, this.onChange(event, resolve));
+=======
+  promise(cb, event) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.player.removeListener(event, this.onChange(event));
+        reject(new Error('Timeout'));
+      }, 10000);
+      this.player.on(event, this.onChange(event, resolve));
+      console.log('running callback for', event);
+>>>>>>> dev
       cb();
     });
   }
 
   pause() {
+<<<<<<< HEAD
     return new Promise((resolve, reject) => {
       setTimeout(() => reject(new Error('Timeout')), 3000);
       this.player.on('pause', () => {
@@ -129,6 +149,35 @@ class Radio {
       });
       this.player.volume = volume;
     });
+=======
+    const cb = () => this.player.pause();
+    return this.promise(cb, 'pause');
+  }
+
+  resume() {
+    const cb = () => this.player.play();
+    return this.promise(cb, 'play');
+  }
+
+  mute() {
+    const cb = () => this.player.mute();
+    return this.promise(cb, 'status');
+  }
+
+  changeSong(direction) {
+    const cb = () => {
+      this.changeIndex(direction);
+      this.player.openFile(this.playlist[this.activeRadio].url, config);
+      this.player.play();
+    };
+
+    return this.promise(cb, 'start');
+  }
+
+  setVolume(volume) {
+    const cb = () => this.player.volume(volume);
+    return this.promise(cb, 'status');
+>>>>>>> dev
   }
 
   changeIndex(direction) {

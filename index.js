@@ -70,12 +70,18 @@ app.post('/setVolume', async (req, res) => {
   const {
     volume,
   } = req.body;
+<<<<<<< HEAD
+=======
+
+  console.log('volume', typeof volume, volume);
+>>>>>>> dev
   if (volume > 100 || volume < 0) {
     res.status(400).json({
       message: 'Invalid Volume',
       statusCode: 400,
     });
     return;
+<<<<<<< HEAD
   }
 
   if (volume === radio.volume) {
@@ -91,6 +97,34 @@ app.post('/setVolume', async (req, res) => {
       message: err.toString(),
     });
   }
+=======
+  }
+
+  if (volume === radio.volume) {
+    res.json(radio.get());
+    return;
+  }
+
+  try {
+    const state = await radio.setVolume(volume);
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
+  }
+});
+
+app.get('/status', async (req, res) => {
+  res.json({
+    eventListners: {
+      start: radio.player.listenerCount('start'),
+      status: radio.player.listenerCount('status'),
+      pause: radio.player.listenerCount('pause'),
+      play: radio.player.listenerCount('play'),
+    },
+  });
+>>>>>>> dev
 });
 
 app.listen(3000, () => {
