@@ -15,6 +15,8 @@ class Radio {
     this.title = '';
     this.playlist = playlist;
     this.player = new MPlayer(false, true);
+
+    this.pendingUpdate = false;
   }
 
   get() {
@@ -27,6 +29,16 @@ class Radio {
     };
   }
 
+  getAsync() {
+    return new Promise((resolve, reject) => {
+      this.setTimeout(() => reject(new Error('Took to long to update')), 3000);
+      while (this.pendingUpdate) {
+        // Do nothing
+      }
+      return resolve(this.get());
+    });
+  }
+
   updateRadio() {
     this.muted = this.player.status.muted;
     this.volume = this.player.status.volume;
@@ -34,6 +46,8 @@ class Radio {
     this.title = !this.player.status.title
       ? this.playlist[this.activeRadio].name
       : this.player.status.title;
+
+    this.pendingUpdate = true;
   }
 
   initalize() {

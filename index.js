@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.json(radio.get());
+  res.json(radio.getAsync());
 });
 
 app.get('/pause', (req, res) => {
@@ -21,22 +21,22 @@ app.get('/pause', (req, res) => {
   } else {
     radio.resume();
   }
-  res.json(radio.get());
+  res.json(radio.getAsync());
 });
 
 app.get('/next', (req, res) => {
   radio.next();
-  res.json(radio.get());
+  res.json(radio.getAsync());
 });
 
 app.get('/prev', (req, res) => {
   radio.prev();
-  res.json(radio.get());
+  res.json(radio.getAsync());
 });
 
 app.get('/mute', (req, res) => {
   radio.mute();
-  res.json(radio.get());
+  res.json(radio.getAsync());
 });
 
 
@@ -50,7 +50,7 @@ app.post('/setVolume', (req, res) => {
 
   radio.setVolume(req.body.volume);
 
-  return res.json(radio.get());
+  return res.json(radio.getAsync());
 });
 
 app.listen(3000, () => {
