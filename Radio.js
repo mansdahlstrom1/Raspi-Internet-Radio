@@ -21,10 +21,13 @@ class Radio {
 
   initalize() {
     this.player.on('start', () => this.next());
+
     this.player.on('status', () => this.updateRadio());
   }
 
   updateRadio() {
+    console.log('update was called!');
+
     this.muted = this.player.status.muted;
     this.volume = this.player.status.volume;
     this.playing = this.player.status.playing;
@@ -46,9 +49,13 @@ class Radio {
   }
 
   getAsync() {
+    let keepGoing = true;
     return new Promise((resolve, reject) => {
-      setTimeout(() => reject(new Error('Took to long to update')), 3000);
-      while (this.pendingUpdate) {
+      setTimeout(() => {
+        keepGoing = false;
+        return reject(new Error('Took to long to update'));
+      }, 3000);
+      while (this.pendingUpdate && keepGoing) {
         // Do nothing
       }
       return resolve(this.get());
