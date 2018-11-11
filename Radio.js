@@ -47,6 +47,17 @@ class Radio {
     };
   }
 
+  promise(cb) {
+    return new Promise((resolve, reject) => {
+      this.player.on('start', () => {
+        this.updateRadio();
+        resolve(this.get());
+      });
+      setTimeout(() => reject(new Error('Error timeout.')), 3000);
+      cb();
+    });
+  }
+
   pause() {
     this.pendingUpdate = true;
     this.player.pause();
@@ -61,16 +72,9 @@ class Radio {
   }
 
   next() {
-    return new Promise((resolve, reject) => {
-      this.player.on('start', () => {
-        this.updateRadio();
-        resolve(this.get());
-      });
-      setTimeout(() => reject(new Error('Error timeout.')), 3000);
-      this.changeIndex(true);
-      this.player.openFile(this.playlist[this.activeRadio].url, config);
-      this.player.play();
-    });
+    this.changeIndex(true);
+    this.player.openFile(this.playlist[this.activeRadio].url, config);
+    this.player.play();
   }
 
   prev() {

@@ -17,12 +17,12 @@ app.get('/', (req, res) => {
 
 app.get('/pause', async (req, res) => {
   try {
-    if (radio.playing) {
-      radio.pause();
-    } else {
-      radio.resume();
+    let cb = radio.pause;
+    if (!radio.playing) {
+      cb = radio.resume;
     }
-    const state = await radio.getAsync();
+
+    const state = await radio.promise(cb);
     res.json(state);
   } catch (err) {
     res.json(400, err.message);
@@ -31,7 +31,7 @@ app.get('/pause', async (req, res) => {
 
 app.get('/next', async (req, res) => {
   try {
-    const state = await radio.next();
+    const state = await radio.promise(radio.next);
     res.json(state);
   } catch (err) {
     res.json(400, err.message);
