@@ -19,6 +19,22 @@ class Radio {
     this.pendingUpdate = false;
   }
 
+  initalize() {
+    this.player.on('start', () => this.next());
+    this.player.on('status', () => this.updateRadio());
+  }
+
+  updateRadio() {
+    this.muted = this.player.status.muted;
+    this.volume = this.player.status.volume;
+    this.playing = this.player.status.playing;
+    this.title = !this.player.status.title
+      ? this.playlist[this.activeRadio].name
+      : this.player.status.title;
+
+    this.pendingUpdate = true;
+  }
+
   get() {
     return {
       active: this.activeRadio,
@@ -37,22 +53,6 @@ class Radio {
       }
       return resolve(this.get());
     });
-  }
-
-  updateRadio() {
-    this.muted = this.player.status.muted;
-    this.volume = this.player.status.volume;
-    this.playing = this.player.status.playing;
-    this.title = !this.player.status.title
-      ? this.playlist[this.activeRadio].name
-      : this.player.status.title;
-
-    this.pendingUpdate = true;
-  }
-
-  initalize() {
-    this.player.on('start', () => this.updateRadio());
-    this.player.on('status', () => this.updateRadio());
   }
 
   pause() {
