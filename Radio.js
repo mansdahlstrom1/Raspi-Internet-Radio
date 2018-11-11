@@ -43,11 +43,38 @@ class Radio {
     };
   }
 
+  onChange(event, resolve) {
+    if (event !== 'status') {
+      return () => {
+        this.updateRadio();
+        this.player.removeListener(event, this.onChange(event));
+        resolve(this.get());
+      };
+    }
+
+    return (status) => {
+      console.log('status: ', status);
+      this.player.removeListener(event, this.onChange(event));
+      this.updateRadio();
+      resolve(this.get());
+    };
+  }
+
+
+  myPromise(cb, event) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on(event, this.onChange(event, resolve));
+      cb();
+    });
+  }
+
   pause() {
     return new Promise((resolve, reject) => {
       setTimeout(() => reject(new Error('Timeout')), 3000);
       this.player.on('pause', () => {
         this.updateRadio();
+        this.player.removeListener('pause', () => {});
         resolve(this.get());
       });
       this.player.pause();
@@ -69,7 +96,7 @@ class Radio {
     return new Promise((resolve, reject) => {
       setTimeout(() => reject(new Error('Timeout')), 3000);
       this.player.on('status', ({ muted }) => {
-        console.log('status for muted', muted)
+        console.log('status for muted', muted);
         this.player.on('status', () => {});
         this.updateRadio();
         resolve(this.get());
