@@ -53,7 +53,10 @@ class Radio {
         this.updateRadio();
         resolve(this.get());
       });
-      setTimeout(() => reject(new Error('Error timeout.')), 3000);
+      this.player.on('status', (status) => {
+        console.log('status changed: ', status);
+      })
+      setTimeout(() => reject(new Error('Timeout')), 3000);
       cb();
     });
   }
