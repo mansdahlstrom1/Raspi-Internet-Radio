@@ -54,8 +54,9 @@ class Radio {
         resolve(this.get());
       });
       this.player.on('status', (status) => {
+        console.log('asd');
         console.log('status changed: ', status);
-      })
+      });
       setTimeout(() => reject(new Error('Timeout')), 3000);
       cb();
     });
