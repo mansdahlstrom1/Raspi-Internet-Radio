@@ -16,6 +16,7 @@ class Radio {
     this.playlist = playlist;
     this.player = new MPlayer(false, true);
 
+
     this.player.on('ready', () => this.changeSong('next'));
   }
 
@@ -51,7 +52,7 @@ class Radio {
     }
 
     return (status) => {
-      console.log('status: ', status);
+      console.log('statusOnChange: ', status);
       this.player.removeListener(event, this.onChange(event));
       this.updateRadio();
       resolve(this.get());
