@@ -54,7 +54,7 @@ class Radio {
     }
 
     return (status) => {
-      console.log('statusOnChange: ', status);
+      console.log('status: ', status);
       this.player.removeListener(event, this.onChange(event));
       this.updateRadio();
       resolve(this.get());
