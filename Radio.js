@@ -32,7 +32,7 @@ class Radio {
       ? this.playlist[this.activeRadio].name
       : this.player.status.title;
 
-    this.pendingUpdate = true;
+    this.pendingUpdate = false;
   }
 
   get() {
@@ -56,6 +56,7 @@ class Radio {
   }
 
   pause() {
+    this.pendingUpdate = true;
     this.player.pause();
   }
 
@@ -68,6 +69,7 @@ class Radio {
   }
 
   next() {
+    this.pendingUpdate = true;
     this.changeIndex(true);
     this.player.openFile(this.playlist[this.activeRadio].url, config);
     this.player.play();
