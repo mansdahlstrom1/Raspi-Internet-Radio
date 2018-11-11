@@ -17,7 +17,7 @@ class Radio {
     this.player = new MPlayer(false, true);
 
     this.pendingUpdate = false;
-    this.player.on('ready', () => this.next());
+    this.player.on('ready', () => this.changeSong('next'));
   }
 
   updateRadio() {
