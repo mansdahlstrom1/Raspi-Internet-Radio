@@ -31,9 +31,7 @@ app.get('/pause', async (req, res) => {
 
 app.get('/next', async (req, res) => {
   try {
-    radio.next();
-
-    const state = await radio.getAsync();
+    const state = await radio.next();
     res.json(state);
   } catch (err) {
     res.json(400, err.message);
