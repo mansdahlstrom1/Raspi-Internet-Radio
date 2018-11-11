@@ -69,10 +69,9 @@ class Radio {
     return new Promise((resolve, reject) => {
       setTimeout(() => reject(new Error('Timeout')), 3000);
       this.player.on('status', ({ muted }) => {
-        if (this.muted !== muted) {
-          this.updateRadio();
-          resolve(this.get());
-        }
+        this.player.on('status', () => {});
+        this.updateRadio();
+        resolve(this.get());
       });
       this.player.mute();
     });
@@ -95,10 +94,10 @@ class Radio {
     return new Promise((resolve, reject) => {
       setTimeout(() => reject(new Error('Timeout')), 3000);
       this.player.on('status', ({ volume: newVolume }) => {
-        if (this.volume !== newVolume) {
-          this.updateRadio();
-          resolve(this.get());
-        }
+        console.log('update', this.volume, newVolume);
+        this.player.on('status', () => {});
+        this.updateRadio();
+        resolve(this.get());
       });
       this.player.volume = volume;
     });
