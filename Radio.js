@@ -16,7 +16,7 @@ class Radio {
     this.playlist = playlist;
     this.player = new MPlayer(false, true);
 
-    this.pendingUpdate = false;
+
     this.player.on('ready', () => this.changeSong('next'));
   }
 
@@ -29,8 +29,6 @@ class Radio {
     this.title = !this.player.status.title
       ? this.playlist[this.activeRadio].name
       : this.player.status.title;
-
-    this.pendingUpdate = false;
   }
 
   get() {
@@ -46,10 +44,7 @@ class Radio {
   onChange(event, resolve) {
     if (event !== 'status') {
       return () => {
-<<<<<<< HEAD
-=======
         console.log('onChange');
->>>>>>> dev
         this.updateRadio();
         this.player.removeListener(event, this.onChange(event));
         resolve(this.get());
@@ -57,24 +52,13 @@ class Radio {
     }
 
     return (status) => {
-<<<<<<< HEAD
-      console.log('status: ', status);
-=======
       console.log('statusOnChange: ', status);
->>>>>>> dev
       this.player.removeListener(event, this.onChange(event));
       this.updateRadio();
       resolve(this.get());
     };
   }
 
-
-<<<<<<< HEAD
-  myPromise(cb, event) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 3000);
-      this.player.on(event, this.onChange(event, resolve));
-=======
   promise(cb, event) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -83,73 +67,11 @@ class Radio {
       }, 10000);
       this.player.on(event, this.onChange(event, resolve));
       console.log('running callback for', event);
->>>>>>> dev
       cb();
     });
   }
 
   pause() {
-<<<<<<< HEAD
-    return new Promise((resolve, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 3000);
-      this.player.on('pause', () => {
-        this.updateRadio();
-        this.player.removeListener('pause', () => {});
-        resolve(this.get());
-      });
-      this.player.pause();
-    });
-  }
-
-  resume() {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 3000);
-      this.player.on('resume', () => {
-        this.updateRadio();
-        resolve(this.get());
-      });
-      this.player.resume();
-    });
-  }
-
-  mute() {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 3000);
-      this.player.on('status', ({ muted }) => {
-        console.log('status for muted', muted);
-        this.player.on('status', () => {});
-        this.updateRadio();
-        resolve(this.get());
-      });
-      this.player.mute();
-    });
-  }
-
-  changeSong(direction) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 3000);
-      this.player.on('start', () => {
-        this.updateRadio();
-        resolve(this.get());
-      });
-      this.changeIndex(direction);
-      this.player.openFile(this.playlist[this.activeRadio].url, config);
-      this.player.play();
-    });
-  }
-
-  setVolume(volume) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 3000);
-      this.player.on('status', ({ volume: newVolume }) => {
-        console.log('update', this.volume, newVolume);
-        this.player.on('status', () => {});
-        this.updateRadio();
-        resolve(this.get());
-      });
-      this.player.volume = volume;
-    });
-=======
     const cb = () => this.player.pause();
     return this.promise(cb, 'pause');
   }
@@ -177,7 +99,6 @@ class Radio {
   setVolume(volume) {
     const cb = () => this.player.volume(volume);
     return this.promise(cb, 'status');
->>>>>>> dev
   }
 
   changeIndex(direction) {
