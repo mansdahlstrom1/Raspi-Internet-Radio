@@ -47,20 +47,6 @@ class Radio {
     };
   }
 
-  getAsync() {
-    let keepGoing = true;
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        keepGoing = false;
-        return reject(new Error('Took to long to update'));
-      }, 3000);
-      while (this.pendingUpdate && keepGoing) {
-        // Do nothing
-      }
-      return resolve(this.get());
-    });
-  }
-
   pause() {
     this.pendingUpdate = true;
     this.player.pause();
@@ -75,10 +61,16 @@ class Radio {
   }
 
   next() {
-    this.pendingUpdate = true;
-    this.changeIndex(true);
-    this.player.openFile(this.playlist[this.activeRadio].url, config);
-    this.player.play();
+    return new Promise((resolve, reject) => {
+      this.player.on('start', () => {
+        this.updateRadio();
+        resolve(this.get());
+      });
+      setTimeout(() => reject(new Error('Error timeout.')), 3000);
+      this.changeIndex(true);
+      this.player.openFile(this.playlist[this.activeRadio].url, config);
+      this.player.play();
+    });
   }
 
   prev() {
