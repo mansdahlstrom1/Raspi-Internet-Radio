@@ -47,7 +47,7 @@ class Radio {
 
   getAsync() {
     return new Promise((resolve, reject) => {
-      this.setTimeout(() => reject(new Error('Took to long to update')), 3000);
+      setTimeout(() => reject(new Error('Took to long to update')), 3000);
       while (this.pendingUpdate) {
         // Do nothing
       }
