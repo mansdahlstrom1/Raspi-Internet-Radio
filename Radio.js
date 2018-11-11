@@ -20,9 +20,8 @@ class Radio {
   }
 
   initalize() {
-    this.player.on('start', () => this.next());
-
-    this.player.on('status', () => this.updateRadio());
+    this.player.on('ready', () => this.next());
+    this.player.on('start', () => this.updateRadio());
   }
 
   updateRadio() {
