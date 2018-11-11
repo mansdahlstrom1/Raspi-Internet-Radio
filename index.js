@@ -12,21 +12,32 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.json(radio.getAsync());
+  res.json(radio.get());
 });
 
-app.get('/pause', (req, res) => {
-  if (radio.playing) {
-    radio.pause();
-  } else {
-    radio.resume();
+app.get('/pause', async (req, res) => {
+  try {
+    if (radio.playing) {
+      radio.pause();
+    } else {
+      radio.resume();
+    }
+    const state = await radio.getAsync();
+    res.json(state);
+  } catch (err) {
+    res.json(400, err.message);
   }
-  res.json(radio.getAsync());
 });
 
-app.get('/next', (req, res) => {
-  radio.next();
-  res.json(radio.getAsync());
+app.get('/next', async (req, res) => {
+  try {
+    radio.next();
+
+    const state = await radio.getAsync();
+    res.json(state);
+  } catch (err) {
+    res.json(400, err.message);
+  }
 });
 
 app.get('/prev', (req, res) => {
