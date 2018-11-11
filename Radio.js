@@ -16,7 +16,6 @@ class Radio {
     this.playlist = playlist;
     this.player = new MPlayer(false, true);
 
-    this.pendingUpdate = false;
     this.player.on('ready', () => this.changeSong('next'));
   }
 
@@ -29,8 +28,6 @@ class Radio {
     this.title = !this.player.status.title
       ? this.playlist[this.activeRadio].name
       : this.player.status.title;
-
-    this.pendingUpdate = false;
   }
 
   get() {
@@ -60,7 +57,6 @@ class Radio {
       resolve(this.get());
     };
   }
-
 
   promise(cb, event) {
     return new Promise((resolve, reject) => {
