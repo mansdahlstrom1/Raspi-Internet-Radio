@@ -42,7 +42,7 @@ app.get('/next', async (req, res) => {
 
 app.get('/prev', (req, res) => {
   radio.prev();
-  res.json(radio.getAsync());
+  res.json(radio.get());
 });
 
 app.get('/mute', (req, res) => {
@@ -61,7 +61,7 @@ app.post('/setVolume', (req, res) => {
 
   radio.setVolume(req.body.volume);
 
-  return res.json(radio.getAsync());
+  return res.json(radio.get());
 });
 
 app.listen(3000, () => {
