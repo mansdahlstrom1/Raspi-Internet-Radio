@@ -69,6 +69,7 @@ class Radio {
     return new Promise((resolve, reject) => {
       setTimeout(() => reject(new Error('Timeout')), 3000);
       this.player.on('status', ({ muted }) => {
+        console.log('status for muted', muted)
         this.player.on('status', () => {});
         this.updateRadio();
         resolve(this.get());
