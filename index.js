@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
   res.json(radio.get());
 });
 
-app.post('/pause', (req, res) => {
+app.get('/pause', (req, res) => {
   if (radio.playing) {
     radio.pause();
   } else {
@@ -24,7 +24,7 @@ app.post('/pause', (req, res) => {
   res.json(radio.get());
 });
 
-app.post('/next', (req, res) => {
+app.get('/next', (req, res) => {
   radio.next();
   res.json(radio.get());
 });
@@ -34,7 +34,13 @@ app.get('/prev', (req, res) => {
   res.json(radio.get());
 });
 
-app.get('/setVolume', (req, res) => {
+app.get('/mute', (req, res) => {
+  radio.mute();
+  res.json(radio.get());
+});
+
+
+app.post('/setVolume', (req, res) => {
   if (req.body.volume > 100 && req.body.volume < 0) {
     return res.status(400).json({
       message: 'Invalid Volume',
@@ -46,12 +52,6 @@ app.get('/setVolume', (req, res) => {
 
   return res.json(radio.get());
 });
-
-app.get('/mute', (req, res) => {
-  radio.muted();
-  res.json(radio.get());
-});
-
 
 app.listen(3000, () => {
   console.log('Example app listening on port 3000!');
