@@ -12,48 +12,87 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.json(radio.getAsync());
+  res.json(radio.get());
 });
 
-app.get('/pause', (req, res) => {
-  if (radio.playing) {
-    radio.pause();
-  } else {
-    radio.resume();
+app.get('/pause', async (req, res) => {
+  try {
+    let state;
+    if (!radio.playing) {
+      state = await radio.resume();
+    } else {
+      state = await radio.pause();
+    }
+
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
   }
-  res.json(radio.getAsync());
 });
 
-app.get('/next', (req, res) => {
-  radio.next();
-  res.json(radio.getAsync());
+app.get('/next', async (req, res) => {
+  try {
+    const state = await radio.changeSong('next');
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
+  }
 });
 
-app.get('/prev', (req, res) => {
-  radio.prev();
-  res.json(radio.getAsync());
+app.get('/prev', async (req, res) => {
+  try {
+    const state = await radio.changeSong('prev');
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
+  }
 });
 
-app.get('/mute', (req, res) => {
-  radio.mute();
-  res.json(radio.getAsync());
+app.get('/mute', async (req, res) => {
+  try {
+    const state = await radio.mute();
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
+  }
 });
 
 
-app.post('/setVolume', (req, res) => {
-  if (req.body.volume > 100 && req.body.volume < 0) {
-    return res.status(400).json({
+app.post('/setVolume', async (req, res) => {
+  const {
+    volume,
+  } = req.body;
+  if (volume > 100 || volume < 0) {
+    res.status(400).json({
       message: 'Invalid Volume',
       statusCode: 400,
     });
+    return;
   }
 
-  radio.setVolume(req.body.volume);
+  if (volume === radio.volume) {
+    res.json(radio.get());
+    return;
+  }
 
-  return res.json(radio.getAsync());
+  try {
+    const state = await radio.setVolume(volume);
+    res.json(state);
+  } catch (err) {
+    res.status(400).json({
+      message: err.toString(),
+    });
+  }
 });
 
 app.listen(3000, () => {
-  console.log('Example app listening on port 3000!');
-  radio.initalize();
+  console.log('Radio Pi listening on port 3000!');
 });

@@ -17,14 +17,12 @@ class Radio {
     this.player = new MPlayer(false, true);
 
     this.pendingUpdate = false;
-  }
-
-  initalize() {
-    this.player.on('start', () => this.next());
-    this.player.on('status', () => this.updateRadio());
+    this.player.on('ready', () => this.changeSong('next'));
   }
 
   updateRadio() {
+    console.log('update was called!');
+
     this.muted = this.player.status.muted;
     this.volume = this.player.status.volume;
     this.playing = this.player.status.playing;
@@ -32,7 +30,7 @@ class Radio {
       ? this.playlist[this.activeRadio].name
       : this.player.status.title;
 
-    this.pendingUpdate = true;
+    this.pendingUpdate = false;
   }
 
   get() {
@@ -45,46 +43,96 @@ class Radio {
     };
   }
 
-  getAsync() {
+  onChange(event, resolve) {
+    if (event !== 'status') {
+      return () => {
+        this.updateRadio();
+        this.player.removeListener(event, this.onChange(event));
+        resolve(this.get());
+      };
+    }
+
+    return (status) => {
+      console.log('status: ', status);
+      this.player.removeListener(event, this.onChange(event));
+      this.updateRadio();
+      resolve(this.get());
+    };
+  }
+
+
+  myPromise(cb, event) {
     return new Promise((resolve, reject) => {
-      this.setTimeout(() => reject(new Error('Took to long to update')), 3000);
-      while (this.pendingUpdate) {
-        // Do nothing
-      }
-      return resolve(this.get());
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on(event, this.onChange(event, resolve));
+      cb();
     });
   }
 
   pause() {
-    this.player.pause();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('pause', () => {
+        this.updateRadio();
+        this.player.removeListener('pause', () => {});
+        resolve(this.get());
+      });
+      this.player.pause();
+    });
   }
 
   resume() {
-    this.player.resume();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('resume', () => {
+        this.updateRadio();
+        resolve(this.get());
+      });
+      this.player.resume();
+    });
   }
 
   mute() {
-    this.player.mute();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('status', ({ muted }) => {
+        console.log('status for muted', muted);
+        this.player.on('status', () => {});
+        this.updateRadio();
+        resolve(this.get());
+      });
+      this.player.mute();
+    });
   }
 
-  next() {
-    this.changeIndex(true);
-    this.player.openFile(this.playlist[this.activeRadio].url, config);
-    this.player.play();
-  }
-
-  prev() {
-    this.changeIndex();
-    this.player.openFile(this.playlist[this.activeRadio].url, config);
-    this.player.play();
+  changeSong(direction) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('start', () => {
+        this.updateRadio();
+        resolve(this.get());
+      });
+      this.changeIndex(direction);
+      this.player.openFile(this.playlist[this.activeRadio].url, config);
+      this.player.play();
+    });
   }
 
   setVolume(volume) {
-    this.player.volume = volume;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 3000);
+      this.player.on('status', ({ volume: newVolume }) => {
+        console.log('update', this.volume, newVolume);
+        this.player.on('status', () => {});
+        this.updateRadio();
+        resolve(this.get());
+      });
+      this.player.volume = volume;
+    });
   }
 
-  changeIndex(isNext = false) {
-    if (isNext) {
+  changeIndex(direction) {
+    if (direction === 'next') {
       if (this.activeRadio === this.playlist.length - 1) {
         this.activeRadio = 0;
       } else {
