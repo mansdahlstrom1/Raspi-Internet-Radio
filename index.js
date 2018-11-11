@@ -31,10 +31,12 @@ app.get('/pause', async (req, res) => {
 
 app.get('/next', async (req, res) => {
   try {
-    const state = await radio.promise(radio.next);
+    const state = await radio.promise(() => radio.next());
     res.json(state);
   } catch (err) {
-    res.json(400, err.message);
+    res.status(400).json({
+      message: err.toString(),
+    });
   }
 });
 
