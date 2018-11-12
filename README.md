@@ -1,6 +1,6 @@
 # radio-pi
 
-> A simple Internet radio player for mPlayer with API integration.
+> A simple Internet radio player for mPlayer with REST API integration and MQTT client
 
 ## Usage
 
