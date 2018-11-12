@@ -1,112 +1,61 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const Radio = require('./Radio');
+const MqttClient = require('./lib/MqttClient');
+const Radio = require('./lib/Radio');
 
-const app = express();
-
+const client = new MqttClient();
 const radio = new Radio();
 
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-app.get('/', (req, res) => {
-  res.json(radio.get());
-});
-
-app.get('/pause', async (req, res) => {
+// Handle incoming messages
+client.on('message', (topic, message) => {
   try {
-    let state;
-    if (!radio.playing) {
-      state = await radio.resume();
-    } else {
-      state = await radio.pause();
+    const data = JSON.parse(message);
+    console.log(topic);
+    console.log(data);
+
+    switch (topic) {
+      case 'radio/get':
+        client.publish('radio/update', JSON.stringify(radio.get()));
+        break;
+      case 'radio/pause':
+        radio.pause();
+        break;
+      case 'radio/resume':
+        radio.resume();
+        break;
+      case 'radio/mute':
+        radio.mute();
+        break;
+      case 'radio/next':
+        radio.changeSong('next');
+        break;
+      case 'radio/prev':
+        radio.changeSong('prev');
+        break;
+      case 'radio/volume':
+        radio.setVolume(data.volume);
+        break;
+      default:
+        console.log('default message');
     }
-
-    res.json(state);
   } catch (err) {
-    res.status(400).json({
-      message: err.toString(),
-    });
+    console.error(err);
+    console.error('whoops!');
   }
 });
 
-app.get('/next', async (req, res) => {
+// publish radio events to subscribers
+const publishRadioUpdate = topic => async () => {
   try {
-    const state = await radio.changeSong('next');
-    res.json(state);
+    radio.updateRadio();
+    await client.publish(`radio/${topic}`, JSON.stringify(radio.get()));
+    console.log(`published event to ${topic}`);
   } catch (err) {
-    res.status(400).json({
-      message: err.toString(),
-    });
+    console.error(err);
   }
-});
+};
 
-app.get('/prev', async (req, res) => {
-  try {
-    const state = await radio.changeSong('prev');
-    res.json(state);
-  } catch (err) {
-    res.status(400).json({
-      message: err.toString(),
-    });
-  }
-});
-
-app.get('/mute', async (req, res) => {
-  try {
-    const state = await radio.mute();
-    res.json(state);
-  } catch (err) {
-    res.status(400).json({
-      message: err.toString(),
-    });
-  }
-});
-
-
-app.post('/setVolume', async (req, res) => {
-  const {
-    volume,
-  } = req.body;
-
-  console.log('volume', typeof volume, volume);
-
-  if (volume > 100 || volume < 0) {
-    res.status(400).json({
-      message: 'Invalid Volume',
-      statusCode: 400,
-    });
-    return;
-  }
-
-  if (volume === radio.volume) {
-    res.json(radio.get());
-    return;
-  }
-
-  try {
-    const state = await radio.setVolume(volume);
-    res.json(state);
-  } catch (err) {
-    res.status(400).json({
-      message: err.toString(),
-    });
-  }
-});
-
-app.get('/status', async (req, res) => {
-  res.json({
-    eventListners: {
-      start: radio.player.listenerCount('start'),
-      status: radio.player.listenerCount('status'),
-      pause: radio.player.listenerCount('pause'),
-      play: radio.player.listenerCount('play'),
-    },
-  });
-});
-
-app.listen(3000, () => {
-  console.log('Radio Pi listening on port 3000!');
-});
+radio.player.on('start', publishRadioUpdate('update'));
+radio.player.on('play', publishRadioUpdate('update'));
+radio.player.on('pause', publishRadioUpdate('update'));
+radio.player.on('stop', publishRadioUpdate('update'));
+radio.player.on('play', publishRadioUpdate('update'));
+radio.player.on('status', publishRadioUpdate('status'));
