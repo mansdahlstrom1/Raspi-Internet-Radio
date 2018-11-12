@@ -8,8 +8,6 @@ const radio = new Radio();
 client.on('message', (topic, message) => {
   try {
     const data = JSON.parse(message);
-    console.log(topic);
-    console.log(data);
 
     switch (topic) {
       case 'radio/get':
@@ -32,9 +30,10 @@ client.on('message', (topic, message) => {
         break;
       case 'radio/volume':
         radio.setVolume(data.volume);
+        client.publish('radio/update', JSON.stringify(radio.get()));
         break;
       default:
-        console.log('default message');
+        console.log('No action specified for this topic');
     }
   } catch (err) {
     console.error(err);
