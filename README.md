@@ -8,3 +8,8 @@
 2. Clone this repository
 3. `cd radio-pi`
 4. `npm run start`
+
+
+## TODO
+
+use https://www.npmjs.com/package/node-mpv instead fo mPlayer

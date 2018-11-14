@@ -42,15 +42,21 @@ client.on('message', (topic, message) => {
 });
 
 // publish radio events to subscribers
-const publishRadioUpdate = topic => async () => {
+const publishRadioUpdate = topic => (status) => {
   try {
-    radio.updateRadio();
-    await client.publish(`radio/${topic}`, JSON.stringify(radio.get()));
-    console.log(`published event to ${topic}`);
+    console.log(status);
+    radio.updateRadio(status || radio.player.status);
+    client.publish(
+      `radio/${topic}`,
+      JSON.stringify(radio.get()),
+    ).then(() => {
+      console.log(`published event to ${topic}`);
+    }).catch(err => console.log(err));
   } catch (err) {
     console.error(err);
   }
 };
+
 
 radio.player.on('start', publishRadioUpdate('update'));
 radio.player.on('play', publishRadioUpdate('update'));
