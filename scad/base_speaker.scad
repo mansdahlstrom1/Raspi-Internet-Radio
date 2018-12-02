@@ -2,6 +2,9 @@ echo(version=version());
 
 $fn = 64;
 
+function rgbToColor(r, g, b , a = 1) = [r / 255, g / 255, b / 255, 1];
+spaceGray = rgbToColor(52, 61, 70, 1);
+
 // all Measurments are in mm
 mangaScreenHeight = 84;
 mangaScreenWidth = 150;
@@ -11,7 +14,7 @@ speakerHeight = 55;
 
 module roundedcube(width, height, depth, radius){
   hull(){
-    translate([radius,radius, 0]) cylinder(h=depth, r=radius, center = true);
+    translate([radius, radius, 0]) cylinder(h=depth, r=radius, center = true);
     translate([width - radius, radius, 0]) cylinder(h=depth, r=radius, center = true);
 
     translate([radius, height - radius, 0]) cylinder(h=depth, r=radius, center = true);
@@ -19,9 +22,8 @@ module roundedcube(width, height, depth, radius){
   }
 }
 
-// 100, 100, 20, 3, 1
 module body(width, height, depth, radius, wallWidth = 5) {
-  color([52 / 255, 61 / 255, 70 / 255, 1]) {
+  color(spaceGray) {
     rotate([0, 270, 0]) {
       difference()
       {
@@ -39,24 +41,6 @@ module body(width, height, depth, radius, wallWidth = 5) {
   }
 }
 
-module hollowCylinder(d=5, h=10, wallWidth=1, $fn=128)
-{
-	difference()
-	{
-		cylinder(d=d, h=h);
-		translate([0, 0, -0.1]) { cylinder(d=d-(wallWidth*2), h=h+0.2); }
-	}
-}
-
-module hollowCube(d=5, h=10, wallWidth=1, $fn=128)
-{
-	difference()
-	{
-		cube(d=d, h=h);
-		translate([0, 0, -0.1]) { cube(d=d-(wallWidth*2), h=h+0.2); }
-	}
-}
-
 module mangaScreen() {
   { 
     cube([mangaScreenWidth, 5, mangaScreenHeight]);
@@ -66,12 +50,10 @@ module mangaScreen() {
 module speaker() {
   union()
   {
-    rotate([0, 45, 0]) { cube([50, 1, 50], center = true); }
-    cube([speakerWidth, 1, speakerHeight], center = true);
+    rotate([0, 45, 0]) { cube([50, 5, 50], center = true); }
+    cube([speakerWidth, 5, speakerHeight], center = true);
   }
 }
-
-// hollowCylinder(d=10, h=20, wallWidth=1, $fn=128);
 
 speakerLeftPos = -100 - (mangaScreenWidth / 2);
 speakerRightPos = 100 + (mangaScreenWidth / 2);
