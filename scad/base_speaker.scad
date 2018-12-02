@@ -42,7 +42,7 @@ module body(width, height, depth, radius, wallWidth = 5) {
 }
 
 module mangaScreen() {
-  { 
+  color("black", 1) { 
     cube([mangaScreenWidth, 2, mangaScreenHeight]);
   }
 }
@@ -55,14 +55,14 @@ module speaker() {
       cube([speakerWidth, 2, speakerHeight], center = true);
     }
     // Speaker Cone
-    rotate([90, 0 ,0]) cylinder(h=5, r = 27);
+    rotate([90, 0 ,0]) cylinder(h=2, r=27);
     //Skrew holes
     color("black", 0) {
       rotate([90, 0, 0]) {
-        translate([25, 25, -5]) cylinder(h=10, r=1);
-        translate([-25, 25, -5]) cylinder(h=10, r=1);
-        translate([25, -25, -5]) cylinder(h=10, r=1);
-        translate([-25, -25, -5]) cylinder(h=10, r=1);
+        translate([25, 25, -5]) cylinder(h=10, r=2);
+        translate([-25, 25, -5]) cylinder(h=10, r=2);
+        translate([25, -25, -5]) cylinder(h=10, r=2);
+        translate([-25, -25, -5]) cylinder(h=10, r=2);
       };
     }
   }
@@ -73,5 +73,5 @@ speakerRightPos = 60 + (mangaScreenWidth / 2);
 
 translate([0, 0, 0]) { body(120, 120, 400, 3); }
 translate([-(mangaScreenWidth / 2), -2, 18]) { mangaScreen(); }
-translate([speakerRightPos, -50, 60]) { speaker(); }
+translate([speakerRightPos, -2, 60]) { speaker(); }
 translate([speakerLeftPos, -2, 60]) { speaker(); }
