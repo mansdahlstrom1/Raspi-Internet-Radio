@@ -9,8 +9,8 @@ spaceGray = rgbToColor(52, 61, 70, 1);
 mangaScreenHeight = 84;
 mangaScreenWidth = 150;
 
-speakerWidth = 55;
-speakerHeight = 55;
+speakerWidth = 57;
+speakerHeight = 57;
 
 module roundedcube(width, height, depth, radius){
   hull(){
@@ -43,22 +43,25 @@ module body(width, height, depth, radius, wallWidth = 5) {
 
 module mangaScreen() {
   { 
-    cube([mangaScreenWidth, 5, mangaScreenHeight]);
+    cube([mangaScreenWidth, 2, mangaScreenHeight]);
   }
 }
 
 module speaker() {
-  union()
-  {
-    rotate([0, 45, 0]) { cube([50, 5, 50], center = true); }
-    cube([speakerWidth, 5, speakerHeight], center = true);
+  difference() {
+    hull() {
+      rotate([0, 45, 0]) { cube([47, 2, 47], center = true); }
+      cube([speakerWidth, 2, speakerHeight], center = true);
+    }
+    rotate([90, 0 ,0]) cylinder(h=5, r = 27);
   }
+
 }
 
-speakerLeftPos = -100 - (mangaScreenWidth / 2);
-speakerRightPos = 100 + (mangaScreenWidth / 2);
+speakerLeftPos = -60 - (mangaScreenWidth / 2);
+speakerRightPos = 60 + (mangaScreenWidth / 2);
 
-translate([0, 0, 0]) { body(120, 120, 500, 3); }
-translate([-(mangaScreenWidth / 2), -5, 18]) { mangaScreen(); }
-translate([speakerRightPos, -5, 60]) { speaker(); }
-translate([speakerLeftPos, -5, 60]) { speaker(); }
+translate([0, 0, 0]) { body(120, 120, 400, 3); }
+translate([-(mangaScreenWidth / 2), -2, 18]) { mangaScreen(); }
+translate([speakerRightPos, -2, 60]) { speaker(); }
+translate([speakerLeftPos, -2, 60]) { speaker(); }
