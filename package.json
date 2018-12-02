@@ -4,7 +4,6 @@
   "description": "internet radio with remote app controller",
   "main": "radio.js",
   "scripts": {
-    "dev": "nodemon radio.js",
     "start": "node index.js"
   },
   "author": "Måns Dahlström",
@@ -21,7 +20,6 @@
   "devDependencies": {
     "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "nodemon": "^1.18.6"
+    "eslint-plugin-import": "^2.14.0"
   }
 }
