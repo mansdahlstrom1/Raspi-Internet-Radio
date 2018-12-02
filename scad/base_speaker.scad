@@ -49,13 +49,23 @@ module mangaScreen() {
 
 module speaker() {
   difference() {
+    // Base Plating
     hull() {
       rotate([0, 45, 0]) { cube([47, 2, 47], center = true); }
       cube([speakerWidth, 2, speakerHeight], center = true);
     }
+    // Speaker Cone
     rotate([90, 0 ,0]) cylinder(h=5, r = 27);
+    //Skrew holes
+    color("black", 0) {
+      rotate([90, 0, 0]) {
+        translate([25, 25, -5]) cylinder(h=10, r=1);
+        translate([-25, 25, -5]) cylinder(h=10, r=1);
+        translate([25, -25, -5]) cylinder(h=10, r=1);
+        translate([-25, -25, -5]) cylinder(h=10, r=1);
+      };
+    }
   }
-
 }
 
 speakerLeftPos = -60 - (mangaScreenWidth / 2);
@@ -63,5 +73,5 @@ speakerRightPos = 60 + (mangaScreenWidth / 2);
 
 translate([0, 0, 0]) { body(120, 120, 400, 3); }
 translate([-(mangaScreenWidth / 2), -2, 18]) { mangaScreen(); }
-translate([speakerRightPos, -2, 60]) { speaker(); }
+translate([speakerRightPos, -50, 60]) { speaker(); }
 translate([speakerLeftPos, -2, 60]) { speaker(); }
